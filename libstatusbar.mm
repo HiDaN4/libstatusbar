@@ -139,7 +139,19 @@ HOOKDEF(id, UIStatusBarForegroundView, _computeVisibleItemsPreservingHistory$, b
 	{
 		
 		NSMutableArray* center = [ret objectForKey: [NSNumber numberWithInt: 2]];
-		centerWidth = [layoutManagers[2] widthNeededForItems: center];
+		if(cfvers > CF_70)
+		{
+			centerWidth = [layoutManagers[2] sizeNeededForItems: center];
+		}
+		else
+		{
+			centerWidth = [layoutManagers[2] widthNeededForItems: center];
+		}
+		if (centerWidth == 0.0)
+		{
+			CGRect rc = [layoutManagers[2] rectForItems: center];
+			centerWidth = rc.size.width;
+		}
 //		CommonLog("Center width = %f", centerWidth);
 	}
 	
@@ -154,15 +166,42 @@ HOOKDEF(id, UIStatusBarForegroundView, _computeVisibleItemsPreservingHistory$, b
 		
 		[layoutManagers[i] clearOverlapFromItems: arr];
 		
-		float arrWidth = [layoutManagers[i] widthNeededForItems: arr];
-		
+    float arrWidth;
+		if(cfvers > CF_70)
+		{
+			arrWidth = [layoutManagers[i] sizeNeededForItems: arr];
+		}
+		else
+		{
+			arrWidth = [layoutManagers[i] widthNeededForItems: arr];
+		}
+		if (arrWidth == 0.0)
+		{
+			CGRect rc = [layoutManagers[i] rectForItems: arr];
+			arrWidth = rc.size.width;
+		}
+
 		for(UIStatusBarCustomItem* item in customItems[i])
 		{
 			NSNumber* visible = [[item properties] objectForKey: @"visible"];
+			
 			if(!visible || [visible boolValue])
 			{
-				float itemWidth = [layoutManagers[i] widthNeededForItem: item];
-				if(arrWidth + itemWidth < edgeWidth + 4)
+				float itemWidth;
+				if(cfvers > CF_70)
+				{
+					itemWidth = [layoutManagers[i] sizeNeededForItem: item];
+				}
+				else
+				{
+					itemWidth = [layoutManagers[i] widthNeededForItem: item];
+				}
+				if (itemWidth <= 0.0)
+				{
+					CGRect rc = [layoutManagers[i] rectForItems:[NSArray arrayWithObjects:item,nil]];
+					itemWidth = rc.size.width;
+				}
+				if(arrWidth + itemWidth < edgeWidth - 4)
 				{
 					[arr addObject: item];
 					arrWidth += itemWidth;
@@ -254,13 +293,27 @@ void PrepareEnabledItemsCommon(UIStatusBarLayoutManager* self)
 		if([view superview] == nil)
 		{
 			[view setVisible: NO];
-			[view setFrame: (CGRect) {{0.0f, 0.0f}, [self _frameForItemView: view startPosition: startPosition].size}];
+			if(cfvers > CF_70)
+			{
+				[view setFrame: (CGRect) {{0.0f, 0.0f}, [self _frameForItemView: view startPosition: startPosition firstView: YES].size}];
+			}
+			else
+			{
+				[view setFrame: (CGRect) {{0.0f, 0.0f}, [self _frameForItemView: view startPosition: startPosition].size}];
+			}
 			[_foregroundView addSubview: view];
 		}
 		int type = [[view item] type];
 		if(type)
 		{
-			startPosition = [self _positionAfterPlacingItemView: view startPosition: startPosition];
+			if(cfvers > CF_70)
+			{
+				startPosition = [self _positionAfterPlacingItemView: view startPosition: startPosition firstView: YES];
+			}
+			else
+			{
+				startPosition = [self _positionAfterPlacingItemView: view startPosition: startPosition];
+			}
 		}
 	}
 }
@@ -588,6 +641,10 @@ CFVers QuantizeCFVers()
 	{
 		return CF_70;
 	}
+	else if(kCFCoreFoundationVersionNumber > 847.21)
+	{
+		return CF_71;
+	}
 //	else if(kCFCoreFoundationVersionNumber == 847.23)
 //	{
 //		return CF_70;
@@ -690,27 +747,7 @@ __attribute__((constructor)) void start()
 	cfvers = QuantizeCFVers();
 	if(!cfvers)
 		return;
-	
-	if(cfvers > CF_50)
-	{
-		if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.system.logger"))
-		{
-			return;
-		}
-		if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.libstatusbar"))
-		{
-			CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
-			TRACE_F();
-			return;
-		}
-		if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.services"))
-		{
-			CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
-			TRACE_F();
-			return;
-		}
-	}
-	
+
 	uint64_t load_time = 0;
 	
 	PROFILE(load_time)

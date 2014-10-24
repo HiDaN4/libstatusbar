@@ -3,11 +3,11 @@ libstatusbar_FILES = libstatusbar.mm Classes.mm \
  							LSStatusBarClient.mm LSStatusBarServer.mm \
 							UIStatusBarCustomItem.mm UIStatusBarCustomItemView.mm \
 							LSStatusBarItem.mm # Testing.mm
-# libstatusbar_FRAMEWORKS = UIKit
+libstatusbar_FRAMEWORKS = UIKit
 
 libstatusbar_PRIVATE_FRAMEWORKS = AppSupport SpringboardServices
 
-libstatusbar_LDFLAGS += -lsubstrate
+libstatusbar_LDFLAGS += -lsubstrate -lrocketbootstrap
 
 GO_EASY_ON_ME =1
 

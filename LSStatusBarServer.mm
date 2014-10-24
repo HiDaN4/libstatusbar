@@ -43,6 +43,7 @@ void incrementTimer()//CFRunLoopTimerRef timer, LSStatusBarServer* self)
 	if(self)
 	{
 		_dmc = [CPDistributedMessagingCenter centerNamed: @"com.apple.springboard.libstatusbar"];
+		rocketbootstrap_distributedmessagingcenter_apply(_dmc);
 		[_dmc runServerOnCurrentThread];
 		[_dmc registerForMessageName: @"currentMessage" target: self selector: @selector(currentMessage)];
 		[_dmc registerForMessageName: @"setProperties:userInfo:" target: self selector: @selector(setProperties:userInfo:)];

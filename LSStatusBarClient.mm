@@ -25,20 +25,20 @@ void ResubmitContent(CFNotificationCenterRef center, LSStatusBarClient* client)
 }
 
 
-extern "C" kern_return_t
-bootstrap_look_up(mach_port_t bp, const char* service_name, mach_port_t *sp);
-
-extern "C" mach_port_t bootstrap_port;
-
 mach_port_t LSBServerPort()
 {
-	//mach_port_t bootstrap_port;
+	mach_port_t boot_port;
 	
-	//int err = task_get_bootstrap_port (mach_task_self (), &boot_port);
+	int err2 = task_get_bootstrap_port (mach_task_self (), &boot_port);
+	if(err2)
+	{
+		NSLog(@"Could not fetch bootstrap_port: %x", err2);
+		return 0;
+	}
 	const char* lookup_name = "com.apple.springboard.libstatusbar";
 	
 	mach_port_t lookup_port = NULL;
-	kern_return_t err = bootstrap_look_up (bootstrap_port, lookup_name, &lookup_port);
+	kern_return_t err = rocketbootstrap_look_up (boot_port, lookup_name, &lookup_port);
 	if(!err)
 		return lookup_port;
 	if(err)
@@ -57,21 +57,6 @@ mach_port_t LSBServerPort()
 	
 	if(!client)
 	{
-		if(!$SpringBoard)
-		{
-			if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.libstatusbar"))
-			{
-				CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
-				TRACE_F();
-				return nil;
-			}
-			if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.services"))
-			{
-				CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
-				return nil;
-			}
-		}
-		
 		{
 			// I feel so dirty.  But don't want to track where/how it's reentrant.
 			client = [self alloc];
@@ -123,11 +108,13 @@ mach_port_t LSBServerPort()
 	else if(LSBServerPort())
 	{
 		CPDistributedMessagingCenter* dmc = [CPDistributedMessagingCenter centerNamed: @"com.apple.springboard.libstatusbar"];
+		rocketbootstrap_distributedmessagingcenter_apply(dmc);
 		_currentMessage = [[dmc sendMessageAndReceiveReplyName: @"currentMessage" userInfo: nil] retain];
 	}
 	else if(SBSSpringBoardServerPort())
 	{
 		CommonLog_F("****** UNABLE TO FETCH FROM LSB!");
+        _currentMessage = nil;
 	}
 	else
 	{
@@ -431,6 +418,7 @@ mach_port_t LSBServerPort()
 			//NSLog(@"dict = %@", [dict description]);
 			
 			CPDistributedMessagingCenter* dmc = [CPDistributedMessagingCenter centerNamed: @"com.apple.springboard.libstatusbar"];
+			rocketbootstrap_distributedmessagingcenter_apply(dmc);
 			[dmc sendMessageName: @"setProperties:userInfo:" userInfo: dict];
 			//NSLine();
 			[dict release];

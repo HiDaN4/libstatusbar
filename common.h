@@ -3,8 +3,8 @@
 #import <UIKit/UIKit.h>
 #import <syslog.h>
 
-
-#import <mach/mach.h>
+#define ROCKETBOOTSTRAP_LOAD_DYNAMIC
+#import <rocketbootstrap.h>
 
 
 
@@ -46,19 +46,6 @@ extern "C" int SBSSpringBoardServerPort();
 #import "UIKIT/UIStatusBar.h"
 #import "UIKIT/UIStatusBarTimeItemView.h"
 
-#import "CPDistributedMessagingCenter.h"
-
-
-enum sandbox_filter_type {
-	SANDBOX_FILTER_NONE = 0,
-	SANDBOX_FILTER_PATH = 1,
-	SANDBOX_FILTER_GLOBAL_NAME  =2,
-	SANDBOX_FILTER_LOCAL_NAME = 3,
-	SANDBOX_CHECK_NO_REPORT = 0x40000000
-};
-
-extern "C" int sandbox_check(pid_t pid, const char *operation, enum sandbox_filter_type type, ...);
-
 
 
 enum CFVers
@@ -75,6 +62,7 @@ enum CFVers
 	CF_51 = 256,
 	CF_60 = 512,
 	CF_70 = 1024,
+	CF_71 = 2048,
 };
 
 extern CFVers cfvers;
