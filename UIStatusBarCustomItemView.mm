@@ -156,8 +156,13 @@ _UILegibilityImageSet* UIStatusBarCustomItemView$contentsImage(UIStatusBarCustom
 	bool isBlack = [tintColor isEqual: [$UIColor blackColor]];
 	bool isLockscreen = [fs isKindOfClass: objc_getClass("UIStatusBarLockScreenForegroundStyleAttributes")];
 
-	UIImage* image_color = [$UIImage imageWithContentsOfFile: [NSString stringWithFormat: @"/System/Library/Frameworks/UIKit.framework/%@_%@_Color@2x.png", isLockscreen?  @"LockScreen" : isBlack ? @"Black" : @"White", itemName]];
-	UIImage* image_base = image_color ? 0 : [$UIImage imageWithContentsOfFile: [NSString stringWithFormat: @"/System/Library/Frameworks/UIKit.framework/%@@2x.png", expandedName_default]];
+	UIImage* image_color = [$UIImage kitImageNamed: [NSString stringWithFormat: @"%@_%@_Color", isLockscreen?  @"LockScreen" : isBlack ? @"Black" : @"White", itemName]];
+	UIImage* image_base = image_color ? 0 : [$UIImage kitImageNamed: expandedName_default];
+	if(!image_color && !image_base)
+	{
+		image_color = [$UIImage imageWithContentsOfFile: [NSString stringWithFormat: @"/System/Library/Frameworks/UIKit.framework/%@_%@_Color.png", isLockscreen?  @"LockScreen" : isBlack ? @"Black" : @"White", itemName]];
+		image_base = image_color ? 0 : [$UIImage imageWithContentsOfFile: [NSString stringWithFormat: @"/System/Library/Frameworks/UIKit.framework/%@.png", expandedName_default]];
+	}
 
 	UIImage* image = image_color;
 	if(!image && image_base)
