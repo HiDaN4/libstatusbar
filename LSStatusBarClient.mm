@@ -63,13 +63,13 @@ mach_port_t LSBServerPort()
 		{
 			if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.libstatusbar"))
 			{
-				CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
+				HBLogInfo(@"******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
 				TRACE_F();
 				return nil;
 			}
 			if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.services"))
 			{
-				CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
+				HBLogInfo(@"******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
 				return nil;
 			}
 		}
@@ -89,7 +89,7 @@ mach_port_t LSBServerPort()
 	static bool reentrant = 0;
 	if(reentrant)
 	{
-		CommonLog_F("Reentrant condition detected!!!!!");
+		HBLogInfo(@"Reentrant condition detected!!!!!");
 		TRACE_F();
 	}
 	*/
@@ -157,7 +157,7 @@ mach_port_t LSBServerPort()
 	/*
 	else if(SBSSpringBoardServerPort())
 	{
-		CommonLog_F("****** UNABLE TO FETCH FROM LSB!");
+		HBLogInfo(@"****** UNABLE TO FETCH FROM LSB!");
 	}
 	else
 	{
@@ -487,7 +487,7 @@ mach_port_t LSBServerPort()
 		/*
 		else if(SBSSpringBoardServerPort())
 		{
-			CommonLog_F("****** UNABLE TO PUSH TO LSB!");
+			HBLogInfo(@"****** UNABLE TO PUSH TO LSB!");
 		}
 		*/
 	}

@@ -63,7 +63,7 @@ UIStatusBarItemView* InitializeView(UIStatusBarLayoutManager* self, id item)
 	
 	
 	GETVAR(UIStatusBarForegroundView*, _foregroundView);
-	int foregroundStyle = [_foregroundView foregroundStyle];
+	id foregroundStyle = [_foregroundView foregroundStyle];
 	
 	
 	if([$UIStatusBarItemView respondsToSelector: @selector(createViewForItem:foregroundStyle:)])
@@ -280,7 +280,7 @@ void PrepareEnabledItemsCommon(UIStatusBarLayoutManager* self)
 			
 			[_foregroundView addSubview: view];
 		}
-		int type = [[view item] type];
+		int type = [(UIStatusBarItem *)[view item] type];
 		if(type)
 		{
 			if(cfvers >= CF_71)
@@ -346,182 +346,182 @@ HOOKDEF(CGRect, UIStatusBarLayoutManager, rectForItems$, NSMutableArray* items)
 }
 
 
-#pragma mark UIStatusBarTimeItemView modifications (for center text)
-
-HOOKDEF(BOOL, UIStatusBarTimeItemView, updateForNewData$actions$, void* data, int actions)
-{
-//	SelLog();
-	
-	NSString* &_timeString(MSHookIvar<NSString*>(self, "_timeString"));
-	NSString* oldString = [_timeString retain];
-	
-	// retrieve the current string index
-	int idx;
-	{
-		uint64_t value;
-		const char* notif = "libstatusbar_changed";
-		static int token = 0;
-		if(!token)
-		{
-			notify_register_check(notif, &token);
-		}
-		notify_get_state(token, &value);
-		
-		idx = value;
-	//	NSLog(@"idx = %d", idx);
-	}
-	
-	// Fetch the current string
-	_timeString = [[[LSStatusBarClient sharedInstance] titleStringAtIndex: idx] retain];
-	
-	// I guess not.  Fetch the default string
-	if(!_timeString)
-	{
-		CALL_ORIG(UIStatusBarTimeItemView, updateForNewData$actions$, data, actions);
-	}
-	
-	// Did the string change?
-	bool isSame = [oldString isEqualToString: _timeString];
-	[oldString release];
-	return !isSame;
-}
-
-/*
-@interface UIStatusBar : NSObject
-- (CGRect) currentFrame;
-@end
-*/
-
-
-
-
-/*
-- (CGRect)boundsRotatedWithStatusBar
-{
-    static BOOL isNotRotatedBySystem;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        BOOL OSIsBelowIOS8 = [[[UIDevice currentDevice] systemVersion] floatValue] < 8.0;
-        BOOL SDKIsBelowIOS8 = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_7_1;
-        isNotRotatedBySystem = OSIsBelowIOS8 || SDKIsBelowIOS8;
-    });
-
-    BOOL needsToRotate = isNotRotatedBySystem && UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
-    if(needsToRotate)
-    {
-        CGRect screenBounds = [self bounds];
-        CGRect bounds = screenBounds;
-        bounds.size.width = screenBounds.size.height;
-        bounds.size.height = screenBounds.size.width;
-        return bounds;
-    }
-    else
-    {
-        return [self bounds];
-    }
-}
-
-
-*/
-
-HOOKDEF(UIImage*, UIStatusBarTimeItemView, contentsImage)
-{
-	NSString* &_timeString(MSHookIvar<NSString*>(self, "_timeString"));
-
-	NSMutableString* timeString = [_timeString mutableCopy];
-	
+// #pragma mark UIStatusBarTimeItemView modifications (for center text)
+//
+// HOOKDEF(BOOL, UIStatusBarTimeItemView, updateForNewData$actions$, void* data, int actions)
+// {
+// //	SelLog();
+//
+// 	NSString* &_timeString(MSHookIvar<NSString*>(self, "_timeString"));
+// 	NSString* oldString = [_timeString retain];
+//
+// 	// retrieve the current string index
+// 	int idx;
+// 	{
+// 		uint64_t value;
+// 		const char* notif = "libstatusbar_changed";
+// 		static int token = 0;
+// 		if(!token)
+// 		{
+// 			notify_register_check(notif, &token);
+// 		}
+// 		notify_get_state(token, &value);
+//
+// 		idx = value;
+// 	//	NSLog(@"idx = %d", idx);
+// 	}
+//
+// 	// Fetch the current string
+// 	_timeString = [[[LSStatusBarClient sharedInstance] titleStringAtIndex: idx] retain];
+//
+// 	// I guess not.  Fetch the default string
+// 	if(!_timeString)
+// 	{
+// 		CALL_ORIG(UIStatusBarTimeItemView, updateForNewData$actions$, data, actions);
+// 	}
+//
+// 	// Did the string change?
+// 	bool isSame = [oldString isEqualToString: _timeString];
+// 	[oldString release];
+// 	return !isSame;
+// }
+//
+// /*
+// @interface UIStatusBar : NSObject
+// - (CGRect) currentFrame;
+// @end
+// */
+//
+//
+//
+//
+// /*
+// - (CGRect)boundsRotatedWithStatusBar
+// {
+//     static BOOL isNotRotatedBySystem;
+//     static dispatch_once_t onceToken;
+//     dispatch_once(&onceToken, ^{
+//         BOOL OSIsBelowIOS8 = [[[UIDevice currentDevice] systemVersion] floatValue] < 8.0;
+//         BOOL SDKIsBelowIOS8 = floor(NSFoundationVersionNumber) <= NSFoundationVersionNumber_iOS_7_1;
+//         isNotRotatedBySystem = OSIsBelowIOS8 || SDKIsBelowIOS8;
+//     });
+//
+//     BOOL needsToRotate = isNotRotatedBySystem && UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
+//     if(needsToRotate)
+//     {
+//         CGRect screenBounds = [self bounds];
+//         CGRect bounds = screenBounds;
+//         bounds.size.width = screenBounds.size.height;
+//         bounds.size.height = screenBounds.size.width;
+//         return bounds;
+//     }
+//     else
+//     {
+//         return [self bounds];
+//     }
+// }
+//
+//
+// */
+//
+// HOOKDEF(UIImage*, UIStatusBarTimeItemView, contentsImage)
+// {
+// 	NSString* &_timeString(MSHookIvar<NSString*>(self, "_timeString"));
+//
+// 	NSMutableString* timeString = [_timeString mutableCopy];
+//
+// 	//CGSize size = [(UIStatusBar*)[[$UIApplication sharedApplication] statusBar] currentFrame].size;
+// 	float maxlen;// = ((size.width > size.height) ? size.width : size.height)*0.6;//0.65;
+//
+// 	{
+// 		CGSize screenSz = [[$UIScreen mainScreen] bounds].size;
+// 		if(cfvers < CF_80)
+// 		{
+// 			maxlen = screenSz.width * 0.6f;
+// 		}
+// 		else if (UIInterfaceOrientationIsPortrait([[$UIApplication sharedApplication] statusBarOrientation]))
+// 		{
+// 			maxlen = screenSz.width * 0.6f;
+// 		}
+// 		else
+// 		{
+// 			maxlen = screenSz.height * 0.6f;
+// 		}
+// 	}
+//
+// 	/*
+// 	if(!maxlen)
+// 	{
+// 		maxlen = [[$UIScreen mainScreen] bounds].size.width * 0.6f;
+// 	}
+// 	*/
+//
+// 	NSLog(@"maxlen = %f", maxlen);
+//
+// 	// ellipsize strings if they're too long
+// 	if([timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
+// 	{
+// 		[timeString replaceCharactersInRange: (NSRange){[timeString length]-1, 1} withString: @"…"];
+// 		while([timeString length]>3 && [timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
+// 		{
+// 			[timeString replaceCharactersInRange: (NSRange){[timeString length]-2, 1} withString: @""];
+// 		}
+// 	}
+// //	NSLog(@"Writing \"%@\" to statusbar %p", timeString, self);
+//
+// 	//svtrace(self);
+// 	// string swap
+// 	NSString* oldTimeString = _timeString;
+// 	_timeString = [timeString retain]; // neccessary ?
+//
+// 	UIImage* ret = CALL_ORIG(UIStatusBarTimeItemView, contentsImage);
+//
+// 	// string swap
+// 	_timeString = oldTimeString;
+// 	[timeString release];
+//
+// 	return ret;
+// }
+//
+// HOOKDEF(UIImage*, UIStatusBarTimeItemView, contentsImageForStyle$, int style)
+// {
+// 	//SelLog();
+//
+// 	NSString* &_timeString(MSHookIvar<NSString*>(self, "_timeString"));
+//
+// 	NSMutableString* timeString = [_timeString mutableCopy];
+//
 	//CGSize size = [(UIStatusBar*)[[$UIApplication sharedApplication] statusBar] currentFrame].size;
-	float maxlen;// = ((size.width > size.height) ? size.width : size.height)*0.6;//0.65;
-	
-	{
-		CGSize screenSz = [[$UIScreen mainScreen] bounds].size;
-		if(cfvers < CF_80)
-		{
-			maxlen = screenSz.width * 0.6f;
-		}
-		else if (UIInterfaceOrientationIsPortrait([[$UIApplication sharedApplication] statusBarOrientation]))
-		{
-			maxlen = screenSz.width * 0.6f;
-		}
-		else
-		{
-			maxlen = screenSz.height * 0.6f;
-		}
-	}
-	
-	/*
-	if(!maxlen)
-	{
-		maxlen = [[$UIScreen mainScreen] bounds].size.width * 0.6f;
-	}
-	*/
-	
-	NSLog(@"maxlen = %f", maxlen);
-	
-	// ellipsize strings if they're too long
-	if([timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
-	{
-		[timeString replaceCharactersInRange: (NSRange){[timeString length]-1, 1} withString: @"…"];
-		while([timeString length]>3 && [timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
-		{
-			[timeString replaceCharactersInRange: (NSRange){[timeString length]-2, 1} withString: @""];
-		}
-	}
-//	NSLog(@"Writing \"%@\" to statusbar %p", timeString, self);
-	
-	//svtrace(self);
-	// string swap
-	NSString* oldTimeString = _timeString;
-	_timeString = [timeString retain]; // neccessary ?
-	
-	UIImage* ret = CALL_ORIG(UIStatusBarTimeItemView, contentsImage);
-	
-	// string swap
-	_timeString = oldTimeString;
-	[timeString release];
-	
-	return ret;
-}
-
-HOOKDEF(UIImage*, UIStatusBarTimeItemView, contentsImageForStyle$, int style)
-{
-	//SelLog();
-	
-	NSString* &_timeString(MSHookIvar<NSString*>(self, "_timeString"));
-
-	NSMutableString* timeString = [_timeString mutableCopy];
-	
-	CGSize size = [(UIStatusBar*)[[$UIApplication sharedApplication] statusBar] currentFrame].size;
-	float maxlen = ((size.width > size.height) ? size.width : size.height)*0.6;//0.65;
-	
-	if(!maxlen)
-	{
-		maxlen = [[$UIScreen mainScreen] bounds].size.width * 0.6f;
-	}
-	
-	// ellipsize strings if they're too long
-	if([timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
-	{
-		[timeString replaceCharactersInRange: (NSRange){[timeString length]-1, 1} withString: @"…"];
-		while([timeString length]>3 && [timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
-		{
-			[timeString replaceCharactersInRange: (NSRange){[timeString length]-2, 1} withString: @""];
-		}
-	}
-//	NSLog(@"Writing \"%@\" to statusbar", timeString);
-	
-	// string swap
-	NSString* oldTimeString = _timeString;
-	_timeString = [timeString retain]; // neccessary ?
-	
-	UIImage* ret = CALL_ORIG(UIStatusBarTimeItemView, contentsImageForStyle$, style);
-	
-	// string swap
-	_timeString = oldTimeString;
-	[timeString release];
-	
-	return ret;
-}
+// 	float maxlen = ((size.width > size.height) ? size.width : size.height)*0.6;//0.65;
+//
+// 	if(!maxlen)
+// 	{
+// 		maxlen = [[$UIScreen mainScreen] bounds].size.width * 0.6f;
+// 	}
+//
+// 	// ellipsize strings if they're too long
+// 	if([timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
+// 	{
+// 		[timeString replaceCharactersInRange: (NSRange){[timeString length]-1, 1} withString: @"…"];
+// 		while([timeString length]>3 && [timeString sizeWithFont: (UIFont*) [self textFont]].width > maxlen)
+// 		{
+// 			[timeString replaceCharactersInRange: (NSRange){[timeString length]-2, 1} withString: @""];
+// 		}
+// 	}
+// //	NSLog(@"Writing \"%@\" to statusbar", timeString);
+//
+// 	// string swap
+// 	NSString* oldTimeString = _timeString;
+// 	_timeString = [timeString retain]; // neccessary ?
+//
+// 	UIImage* ret = CALL_ORIG(UIStatusBarTimeItemView, contentsImageForStyle$, style);
+//
+// 	// string swap
+// 	_timeString = oldTimeString;
+// 	[timeString release];
+//
+// 	return ret;
+// }
 
 
 #pragma mark Client startup
@@ -539,7 +539,7 @@ HOOKDEF(void, UIApplication, _reportAppLaunchFinished)
 	static BOOL hasAlreadyRan = NO;
 	if(hasAlreadyRan)
 	{
-		CommonLog_F("Warning: UIApplication _startWindowServerIfNecessary called twice!");
+		HBLogInfo(@"Warning: UIApplication _startWindowServerIfNecessary called twice!");
 		return;
 	}
 	else
@@ -569,7 +569,7 @@ HOOKDEF(void, UIApplication, _startWindowServerIfNecessary)
 	static BOOL hasAlreadyRan = NO;
 	if(hasAlreadyRan)
 	{
-		CommonLog_F("Warning: UIApplication _startWindowServerIfNecessary called twice!");
+		HBLogInfo(@"Warning: UIApplication _startWindowServerIfNecessary called twice!");
 		return;
 	}
 	else
@@ -629,7 +629,7 @@ HOOKDEF(void, SBApplication, exitedCommon)
 
 CFVers QuantizeCFVers()
 {
-	CommonLog_F("CoreFoundation = %f", kCFCoreFoundationVersionNumber);
+	// HBLogInfo(@"CoreFoundation = %f", kCFCoreFoundationVersionNumber);
 	
 	if(kCFCoreFoundationVersionNumber == 478.47)
 	{
@@ -711,7 +711,8 @@ CFVers QuantizeCFVers()
 	//else if(kCFCoreFoundationVersionNumber > 793.00)
 	else
 	{
-		CommonLog_F("CoreFoundation = %f", kCFCoreFoundationVersionNumber);
+		// HBLogInfo(@"CoreFoundation = %f", kCFCoreFoundationVersionNumber);
+		return CF_90;
 	}
 	
 	return CF_NONE;
@@ -815,13 +816,13 @@ __attribute__((constructor)) void start()
 		}
 		if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.libstatusbar"))
 		{
-			CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
+			HBLogInfo(@"******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
 			TRACE_F();
 			return;
 		}
 		if(sandbox_check(getpid(), "mach-lookup", (sandbox_filter_type) (SANDBOX_FILTER_LOCAL_NAME | SANDBOX_CHECK_NO_REPORT), "com.apple.springboard.services"))
 		{
-			CommonLog_F("******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
+			HBLogInfo(@"******SANDBOX FORBADE MACH LOOKUP.  LIBSTATUSBAR MAY CRASH IN THIS PROCESS********\n");
 			TRACE_F();
 			return;
 		}
@@ -829,6 +830,8 @@ __attribute__((constructor)) void start()
 	
 	uint64_t load_time = 0;
 	
+	NSString *bundleIdentifier = [NSBundle mainBundle].bundleIdentifier;
+	NSString *executable = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
 	PROFILE(load_time)
 	{
 	
@@ -837,9 +840,37 @@ __attribute__((constructor)) void start()
 		
 		[[NSAutoreleasePool alloc] init];
 		
+		BOOL shouldLoad = NO;
+		NSArray *args = [[NSClassFromString(@"NSProcessInfo") processInfo] arguments];
+		NSUInteger count = args.count;
+		if (count != 0) {
+			NSString *executablePath = args[0];
+			if (executablePath) {
+				NSString *processName = [executablePath lastPathComponent];
+				BOOL isSpringBoard = [processName isEqualToString:@"SpringBoard"];
+				BOOL isApplication = [executablePath rangeOfString:@"/Application"].location != NSNotFound;
+				BOOL isFileProvider = [[processName lowercaseString] rangeOfString:@"fileprovider"].location != NSNotFound;
+				BOOL skip = [processName isEqualToString:@"AdSheet"]
+						 || [processName isEqualToString:@"CoreAuthUI"]
+						 || [processName isEqualToString:@"InCallService"]
+						 || [processName isEqualToString:@"MessagesNotificationViewService"]
+						 || [executablePath rangeOfString:@".appex/"].location != NSNotFound;
+				if (!isFileProvider && (isSpringBoard || isApplication) && !skip) {
+					shouldLoad = YES; //%init;
+				}
+				else {
+					HBLogInfo(@"NOT loading %@ -- %@", processName, executablePath);
+				}
+			}
+		}
+
 		// we only hook UIKit apps - used as a guard band
+		if(!shouldLoad)
+			return;
+
 		if($UIStatusBarItem)
 		{
+			HBLogInfo(@"loading");
 			ClassCreate_UIStatusBarCustomItemView();
 			ClassCreate_UIStatusBarCustomItem();
 			
@@ -879,16 +910,16 @@ __attribute__((constructor)) void start()
 				}
 				*/
 			
-				HOOKMESSAGE(UIStatusBarTimeItemView, updateForNewData:actions:, updateForNewData$actions$);
-				
-				if(cfvers < CF_70)
-				{
-					HOOKMESSAGE(UIStatusBarTimeItemView, contentsImageForStyle:, contentsImageForStyle$);
-				}
-				else
-				{
-					HOOKMESSAGE(UIStatusBarTimeItemView, contentsImage, contentsImage);
-				}
+				// HOOKMESSAGE(UIStatusBarTimeItemView, updateForNewData:actions:, updateForNewData$actions$);
+				//
+				// if(cfvers < CF_70)
+				// {
+				// 	HOOKMESSAGE(UIStatusBarTimeItemView, contentsImageForStyle:, contentsImageForStyle$);
+				// }
+				// else
+				// {
+				// 	HOOKMESSAGE(UIStatusBarTimeItemView, contentsImage, contentsImage);
+				// }
 				
 			
 			}
@@ -911,24 +942,25 @@ __attribute__((constructor)) void start()
 				GETCLASS(SBApplication);
 				HOOKMESSAGE(SBApplication, exitedCommon, exitedCommon);
 			}
-		//	CommonLog_F("*********** SpringBoard = %p", $SpringBoard);
+		//	HBLogInfo(@"*********** SpringBoard = %p", $SpringBoard);
 			
 			
 			
 		//	[[LSStatusBarClient sharedInstance] updateStatusBar];
 			
-		//	CommonLog_F("Done loading.");
+		//	HBLogInfo(@"Done loading.");
 		}
-		else if(!$UIApplication)
-		{
-			CommonLog_F("Libstatusbar NOT loading on a UIKit process.");
-		}
+// 		else if(!$UIApplication)
+// 		{
+// 			HBLogInfo(@"Libstatusbar NOT loading on a UIKit process.");
+// 		}
 		else
 		{
-//			CommonLog_F("UIStatusBarItem is null??"); 
+			HBLogInfo(@"NOT loading other");
+//			HBLogInfo(@"UIStatusBarItem is null??");
 		}
 	}
-	CommonLog("Took %ld us to load libstatusbar\n", load_time);
+	NSLog("Took %ld us to load libstatusbar\n", load_time);
 
 }
 

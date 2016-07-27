@@ -1,0 +1,10 @@
+Package: libmoorecon
+Name: libmoorecon
+Provides: libstatusbar
+Replaces: libstatusbar
+Conflicts: libstatusbar
+Depends: firmware (>=9.0), mobilesubstrate, com.rpetrich.rocketbootstrap
+Version: 0.9.9.0~beta2
+Architecture: iphoneos-arm
+Description: Based almost 100% on libstatusbar by phoenix3200. This version is for my personal use and removes the upper limit CoreFoundation (iOS version) restriction and attempts to keep it from loading inside of non Application processes. Compiled for iOS9.x, armv7 and arm64.
+Section: Tweaks
