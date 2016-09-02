@@ -621,11 +621,11 @@ CFVers cfvers;
 
 @class SBApplication;
 
-HOOKDEF(void, SBApplication, exitedCommon)
-{
-	CALL_ORIG(SBApplication, exitedCommon);
-	[[LSStatusBarServer sharedInstance] appDidExit: [self bundleIdentifier]];
-}
+// HOOKDEF(void, SBApplication, exitedCommon)
+// {
+// 	CALL_ORIG(SBApplication, exitedCommon);
+// 	[[LSStatusBarServer sharedInstance] appDidExit: [self bundleIdentifier]];
+// }
 
 CFVers QuantizeCFVers()
 {
@@ -848,7 +848,7 @@ __attribute__((constructor)) void start()
 			if (executablePath) {
 				NSString *processName = [executablePath lastPathComponent];
 				BOOL isSpringBoard = [processName isEqualToString:@"SpringBoard"];
-				BOOL isApplication = [executablePath rangeOfString:@"/Application"].location != NSNotFound;
+				BOOL isApplication = [executablePath rangeOfString:@"/Application/"].location != NSNotFound || [executablePath rangeOfString:@"/Applications/"].location != NSNotFound;
 				BOOL isFileProvider = [[processName lowercaseString] rangeOfString:@"fileprovider"].location != NSNotFound;
 				BOOL skip = [processName isEqualToString:@"AdSheet"]
 						 || [processName isEqualToString:@"CoreAuthUI"]
@@ -939,8 +939,8 @@ __attribute__((constructor)) void start()
 			{
 				[LSStatusBarServer sharedInstance];
 				
-				GETCLASS(SBApplication);
-				HOOKMESSAGE(SBApplication, exitedCommon, exitedCommon);
+				// GETCLASS(SBApplication);
+				// HOOKMESSAGE(SBApplication, exitedCommon, exitedCommon);
 			}
 		//	HBLogInfo(@"*********** SpringBoard = %p", $SpringBoard);
 			

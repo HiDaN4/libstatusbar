@@ -354,7 +354,18 @@ mach_port_t LSBServerPort()
 			if(_foregroundView)
 			{
 				//NSLine();
-				[sb forceUpdateData: NO];
+				if (cfvers < CF_90)
+				{
+					[sb forceUpdateData: NO];
+				}
+				else
+				{
+					UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView, "_currentData");
+					if (_currentData)
+					{
+						[_foregroundView _setStatusBarData:_currentData actions:1 animated:0];
+					}
+				}
 				//NSLine();
 				
 				if(_isLocal)
@@ -370,7 +381,22 @@ mach_port_t LSBServerPort()
 						if(listview)
 						{
 							id _statusBar = MSHookIvar<id>(listview, "_statusBar");
-							[_statusBar forceUpdateData: NO];
+							if (cfvers < CF_90)
+							{
+								[_statusBar forceUpdateData: NO];
+							}
+							else
+							{
+								UIStatusBarForegroundView* _foregroundView2 = MSHookIvar<UIStatusBarForegroundView*>(_statusBar, "_foregroundView");
+								if (_foregroundView2)
+								{
+									UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView2, "_currentData");
+									if (_currentData)
+									{
+										[_foregroundView _setStatusBarData:_currentData actions:1 animated:0];
+									}
+								}
+							}
 						}
 					}
 					
@@ -390,8 +416,23 @@ mach_port_t LSBServerPort()
 								// forceUpdateData: animated: doesn't work if statusbar._inProcessProvider = 1
 								// bypass and directly do it.
 								
-								void* &_currentRawData(MSHookIvar<void*>(_statusBar, "_currentRawData"));
-								[_statusBar forceUpdateToData: &_currentRawData animated: NO];
+								if (cfvers < CF_90)
+								{
+									void* &_currentRawData(MSHookIvar<void*>(_statusBar, "_currentRawData"));
+									[_statusBar forceUpdateToData: &_currentRawData animated: NO];
+								}
+								else
+								{
+									UIStatusBarForegroundView* _foregroundView2 = MSHookIvar<UIStatusBarForegroundView*>(_statusBar, "_foregroundView");
+									if (_foregroundView2)
+									{
+										UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView2, "_currentData");
+										if (_currentData)
+										{
+											[_foregroundView _setStatusBarData:_currentData actions:1 animated:0];
+										}
+									}
+								}
 								
 							}
 						}
