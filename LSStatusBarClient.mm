@@ -387,10 +387,10 @@ mach_port_t LSBServerPort()
 							}
 							else
 							{
-								UIStatusBarForegroundView* _foregroundView2 = MSHookIvar<UIStatusBarForegroundView*>(_statusBar, "_foregroundView");
-								if (_foregroundView2)
+								UIStatusBarForegroundView* _foregroundView = MSHookIvar<UIStatusBarForegroundView*>(_statusBar, "_foregroundView");
+								if (_foregroundView)
 								{
-									UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView2, "_currentData");
+									UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView, "_currentData");
 									if (_currentData)
 									{
 										[_foregroundView _setStatusBarData:_currentData actions:1 animated:0];
@@ -423,10 +423,10 @@ mach_port_t LSBServerPort()
 								}
 								else
 								{
-									UIStatusBarForegroundView* _foregroundView2 = MSHookIvar<UIStatusBarForegroundView*>(_statusBar, "_foregroundView");
-									if (_foregroundView2)
+									UIStatusBarForegroundView* _foregroundView = MSHookIvar<UIStatusBarForegroundView*>(_statusBar, "_foregroundView");
+									if (_foregroundView)
 									{
-										UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView2, "_currentData");
+										UIStatusBarComposedData* _currentData = MSHookIvar<UIStatusBarComposedData*>(_foregroundView, "_currentData");
 										if (_currentData)
 										{
 											[_foregroundView _setStatusBarData:_currentData actions:1 animated:0];
