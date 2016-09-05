@@ -364,6 +364,17 @@ mach_port_t LSBServerPort()
 					if (_currentData)
 					{
 						[_foregroundView _setStatusBarData:_currentData actions:1 animated:0];
+
+						// Fix statusbar clock disappearing when unlocking a device on iOS 9.x devices
+						if(_isLocal)
+						{
+							GETCLASS(SBStatusBarStateAggregator);
+							if($SBStatusBarStateAggregator)
+							{
+								[[$SBStatusBarStateAggregator sharedInstance] _setItem:0 enabled:NO];
+								[[$SBStatusBarStateAggregator sharedInstance] _setItem:0 enabled:YES];
+							}
+						}
 					}
 				}
 				//NSLine();
