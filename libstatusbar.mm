@@ -858,9 +858,9 @@ __attribute__((constructor)) void start()
 				if (!isFileProvider && (isSpringBoard || isApplication) && !skip) {
 					shouldLoad = YES; //%init;
 				}
-				else {
-					HBLogInfo(@"NOT loading %@ -- %@", processName, executablePath);
-				}
+				// else {
+					// HBLogInfo(@"NOT loading %@ -- %@", processName, executablePath);
+				// }
 			}
 		}
 
@@ -870,7 +870,7 @@ __attribute__((constructor)) void start()
 
 		if($UIStatusBarItem)
 		{
-			HBLogInfo(@"loading");
+			// HBLogInfo(@"loading");
 			ClassCreate_UIStatusBarCustomItemView();
 			ClassCreate_UIStatusBarCustomItem();
 			
@@ -956,7 +956,7 @@ __attribute__((constructor)) void start()
 // 		}
 		else
 		{
-			HBLogInfo(@"NOT loading other");
+			// HBLogInfo(@"NOT loading other");
 //			HBLogInfo(@"UIStatusBarItem is null??");
 		}
 	}
